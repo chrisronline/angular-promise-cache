@@ -12,18 +12,21 @@
 
       var model = myAwesomeModel;
 
-      // model = myNotSoAwesomeModel;
+      //model = myNotSoAwesomeModel;
 
       $scope.run = function() {
-        model.resetPromiseCount();
         for (var i = 0; i < parseInt($scope.callCount); i++) {
-          model.getData($scope.ttl * 1000);
-          uhOhAnotherService.getData($scope.ttl * 1000);
+          model.getData($scope.ttl * 1000, $scope.bustCache);
           $scope.bustCache = false;
-        }  
+          uhOhAnotherService.getData($scope.ttl * 1000, $scope.bustCache);
+        }
       };
 
+      $scope.reset = function() {
+        model.resetPromiseCount();
+      }
       $scope.amountOfPromises = model.getPromiseCount;
+
       $scope.cacheState = '';
       $scope.$watch(function() { return promiseCacheState.state('getData'); }, function(state) {
         if (!state) return;
@@ -41,7 +44,7 @@
         resetPromiseCount: function() {
           numberOfTimesPromiseCreated = 0;
         },
-        getData: function(ttl) {
+        getData: function(ttl, bustCache) {
           return promiseCache({
             promise: function() {
               var deferred = $q.defer();
@@ -50,6 +53,7 @@
               return deferred.promise;
             },
             ttl: ttl,
+            bustCache: bustCache,
             key: 'getData'
           })
         }
@@ -58,9 +62,9 @@
 
     .factory('uhOhAnotherService', function(myAwesomeModel) {
       return {
-        getData: function(ttl) {
+        getData: function(ttl, bustCache) {
           // Hmm I actually want the data from myAwesomeModel
-          return myAwesomeModel.getData(ttl);
+          return myAwesomeModel.getData(ttl, bustCache);
         }
       }
     })
@@ -137,6 +141,8 @@
       <div class="form-group">
         <div class="col-lg-offset-2 col-lg-10">
           <button ng-click="run()" class="btn btn-default">Run</button>
+          <button ng-click="bustCache=true" class="btn btn-default">Bust Cache</button>
+          <button ng-click="reset()" class="btn btn-default">Reset Promise Count</button>
         </div>
         <div class="clearfix"></div>
       </div>
