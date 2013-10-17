@@ -1,0 +1,26 @@
+{
+  "name": "angular-promise-cache",
+  "version": "0.0.0",
+  "description": "AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly.",
+  "main": "angular-promise-cache.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "karma start && karma run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrisronline/angular-promise-cache.git"
+  },
+  "keywords": [
+    "angularjs",
+    "promises",
+    "cache"
+  ],
+  "author": "Chris Roberson <chrisronline@gmail.com> (https://github.com/chrisronline)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chrisronline/angular-promise-cache/issues"
+  }
+}
