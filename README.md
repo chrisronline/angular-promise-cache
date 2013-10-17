@@ -32,7 +32,7 @@ Our goal is to allow this kind of code...
         }
       });
 
-But not have our models looks like...
+But not have our models look like...
 
     angular.module('myAwesomeApp')
       .factory('myNotSoAwesomeModel', function($q, $http) {
@@ -76,7 +76,7 @@ But not have our models looks like...
         };
       });
 
-Never fear! angular-promise-cache provides the above implementation in a simple, reusable service that integrates into any promise.
+Never fear! angular-promise-cache provides the above implementation in a simple, reusable service that integrates with any promise.
 
 
 Installation
@@ -90,8 +90,8 @@ npm:
     npm install angular-promise-cache --save
 
 Manual:
-* [Development Build](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
-* [Minified/Production Build](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
+* [Development Build - 1.44KB gzipped (3.1KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
+* [Minified/Production Build - 549 bytes gzipped (1.03KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
 
 Usage
 ---------
@@ -124,13 +124,14 @@ promiseCache(opts)
       // The method we only want to "cache". Required
       promise: function,
 
-      // The amount of milliseconds we will cache the above response. Default is 5000
+      // The amount of milliseconds we will cache the promise response. Default is 5000
       ttl: int,
 
-      // A manual lever to bust the cache. Default is false
+      // A manual lever to expire the cache. Default is false
       bustCache: boolean,
 
-      // Identifier for this cached promise. Default is promise.toString()
+      // Identifier for the cached promise. Default is promise.toString()
+      // This is useful if you are creating different promises that need to share the same cache
       key: string
     }
 
