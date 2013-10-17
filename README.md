@@ -11,16 +11,16 @@ Our goal is to allow this kind of code...
       .controller('myAwesomeCtrl', function($scope, myAwesomeModel, uhOhAnotherService) {
         myAwesomeModel.getData(); // xhr request!
         myAwesomeModel.getData(); // no xhr request!!
-        
+
         // assume data loads finally
-        
+
         myAwesomeModel.getData(); // no xhr request!
-        
+
         // expires based on TTL...
-        
+
         myAwesomeModel.getData(); // xhr request!
         myAwesomeModel.getData(); // no xhr request!
-        
+
         uhOhAnotherService.getData(); // no xhr request!
       })
       .factory('uhOhAnotherService', function(myAwesomeModel) {
@@ -40,7 +40,7 @@ But not have our models looks like...
           promises = [],
           ttl_in_ms = 2000,
           purge_date = null;
-          
+
         return {
           clearData: function() {
             cache = null;
@@ -51,7 +51,7 @@ But not have our models looks like...
             if (purge_date !== null && purge_date < new Date().getTime()) {
               this.clearData();
             }
-            
+
             if (promises.length > 0) {
               promises.push(deferred);
             }
@@ -70,7 +70,7 @@ But not have our models looks like...
             else {
               deferred.resolve(cache);
             }
-            
+
             return deferred.promise;
           }
         };
@@ -81,25 +81,25 @@ Never fear! angular-promise-cache provides the above implementation in a simple,
 
 Installation
 ---------
-Bower:  
+Bower:
 
     bower install angular-promise-cache --save
 
 npm:
 
     npm install angular-promise-cache --save
-    
+
 Manual:
 * [Development Build](http://devbuild)
 * [Minified/Production Build](http://prodbuild)
 
 Usage
 ---------
-**app.js:**  
+**app.js:**
 
     angular.module('myAwesomeApp', ['angular-promise-cache'])
 ***
-**model.js**  
+**model.js**
 
     angular.module('myAwesomeApp')
       .factory('myAwesomeModel', function($http, promiseCache) {
@@ -123,20 +123,20 @@ promiseCache(opts)
     opts: {
       // The method we only want to "cache". Required
       promise: function,
-      
+
       // The amount of milliseconds we will cache the above response. Default is 5000
       ttl: int,
-      
+
       // A manual lever to bust the cache. Default is false
       bustCache: boolean,
-      
+
       // Identifier for this cached promise. Default is promise.toString()
       key: string
     }
 
 Example
 ---------
-Please view the detailed [demo](https://github.com/chrisronline/angular-promise-cache/blob/master/example/example.html)
+Please view the detailed [demo](http://www.chrisronline.com/angular-promise-cache/example/example.html)
 
 Testing
 ---------
