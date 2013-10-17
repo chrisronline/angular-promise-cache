@@ -1,5 +1,5 @@
 {
   "name": "angular-promise-cache",
-  "version": "0.0.1",
-  "main": "angular-promise-cache.js",
+  "version": "0.0.2",
+  "main": "angular-promise-cache.js"
 }
