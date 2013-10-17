@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Angular-promise-cache by chrisronline</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Angular-promise-cache</h1>
+        <p>AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly</p>
+
+        <p class="view"><a href="https://github.com/chrisronline/angular-promise-cache">View the Project on GitHub <small>chrisronline/angular-promise-cache</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/chrisronline/angular-promise-cache/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/chrisronline/angular-promise-cache/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/chrisronline/angular-promise-cache">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="angular-promise-cache" class="anchor" href="#angular-promise-cache"><span class="octicon octicon-link"></span></a>angular-promise-cache</h1>
+
+<p>AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly.</p>
+
+<h2>
+<a name="huh" class="anchor" href="#huh"><span class="octicon octicon-link"></span></a>Huh?</h2>
+
+<p>Without this awesome library:</p>
+
+<p><strong>model.js</strong></p>
+
+<pre><code>angular.module('myAwesomeApp')
+  .factory('myAwesomeModel', function($q, $http) {
+    var cache = null;
+    return {
+      clearData: function() {
+        cache = null;
+      },
+      getData: function() {
+        var deferred = $q.defer();
+
+        if (cache === null) {
+          $http.get('/my/data').then(function(response) {
+            cache = response;
+            deferred.resolve(cache);
+          });
+        }
+        else {
+          deferred.resolve(cache);
+        }
+
+        return deferred.promise;
+      }
+    };
+  }
+</code></pre>
+
+<p>And guess what? This has to be repeated for every single common use case! And when should we clear the data? Ideally, we set a TTL and allow it gracefully expire, but that requires more repeated code...</p>
+
+<p>I know I know - it'd be <strong>awesome</strong> if someone provided a simple, easy to use library that solved these issues...it'd be even more awesome if you happened to have the github for that library open in your browser...Okay enough. Just install and enjoy!</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<pre><code>bower install angular-promise-cache --save
+</code></pre>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p><strong>app.js:</strong>  </p>
+
+<pre><code>angular.module('myAwesomeApp', ['angular-promise-cache'])
+</code></pre>
+
+<hr><p><strong>model.js</strong>  </p>
+
+<pre><code>angular.module('myAwesomeApp')
+  .factory('myAwesomeModel', function($http, promiseCache) {
+    return {
+      getData: function() {
+        return promiseCache(function() {
+            return $http.get('/my/data');
+        });
+      }
+    };
+  }
+</code></pre>
+
+<hr><p><strong>controller.js</strong>  </p>
+
+<pre><code>angular.module('myAwesomeApp')
+  .controller('myAwesomeCtrl', function($scope, myAwesomeModel) {
+    myAwesomeModel.getData(); // xhr request!
+    myAwesomeModel.getData(); // no xhr request!!
+
+    // assume data loads finally
+
+    myAwesomeModel.getData(); // no xhr request!
+
+    // expires based on TTL (since we did not provide one, it uses the default of 5 seconds)
+  });
+</code></pre>
+
+<hr><p><strong>Voila!</strong></p>
+
+<h2>
+<a name="testing" class="anchor" href="#testing"><span class="octicon octicon-link"></span></a>Testing</h2>
+
+<p>Requires:</p>
+
+<ul>
+<li>Karma</li>
+<li>PhantomJS</li>
+</ul><p>To run:</p>
+
+<pre><code>karma start
+karma run
+</code></pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/chrisronline">chrisronline</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
