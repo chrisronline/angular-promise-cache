@@ -90,8 +90,8 @@ npm:
     npm install angular-promise-cache --save
 
 Manual:
-* [Development Build](http://devbuild)
-* [Minified/Production Build](http://prodbuild)
+* [Development Build](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
+* [Minified/Production Build](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
 
 Usage
 ---------
