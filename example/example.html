@@ -1,0 +1,85 @@
+<html>
+<head>
+  <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="http://code.angularjs.org/1.0.7/angular.min.js"></script>
+  <script src="../angular-promise-cache.min.js"></script>
+  <script>
+  angular.module('apcExample', ['angular-promise-cache'])
+
+    .controller('ExampleCtrl', function($scope, ExampleService, promiseCacheState) {
+      $scope.ttl = 1;
+      $scope.callCount = 2;
+
+      $scope.run = function() {
+        ExampleService.resetPromiseCount();
+        for (var i = 0; i < parseInt($scope.callCount); i++) {
+          ExampleService.getData($scope.ttl * 1000);
+          $scope.bustCache = false;
+        }  
+      };
+
+      $scope.amountOfPromises = ExampleService.getPromiseCount;
+      $scope.cacheState = '';
+      $scope.$watch(function() { return promiseCacheState.state('getData'); }, function(state) {
+        if (!state) return;
+        $scope.cacheState = state.expired ? 'Expired!' : 'Expiring in ' + state.ttl + 'ms';
+      })
+    })
+
+    .factory('ExampleService', function($q, promiseCache) {
+      var numberOfTimesPromiseCreated = 0;
+
+      return {
+        getPromiseCount: function() {
+          return numberOfTimesPromiseCreated;
+        },
+        resetPromiseCount: function() {
+          numberOfTimesPromiseCreated = 0;
+        },
+        getData: function(ttl) {
+          return promiseCache({
+            promise: function() {
+              var deferred = $q.defer();
+              numberOfTimesPromiseCreated++
+              deferred.resolve(true);
+              return deferred.promise;
+            },
+            ttl: ttl,
+            key: 'getData'
+          })
+        }
+      };
+    })
+  </script>
+</head>
+<body ng-app="apcExample">
+  <div ng-controller="ExampleCtrl" class="well">
+    <h2>Options</h2>
+    <form name="form-horizontal">
+      <div class="form-group">
+        <label for="callCount" class="col-lg-2 control-label">Call count</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="callCount" ng-model="callCount"/>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="form-group">
+        <label for="ttl" class="col-lg-2 control-label">TTL (in seconds)</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="ttl" ng-model="ttl"/>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="form-group">
+        <div class="col-lg-offset-2 col-lg-10">
+          <button ng-click="run()" class="btn btn-default">Run</button>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </form>
+    <h2>Output</h2>
+    <h3>Created Promises: {{ amountOfPromises() }}</h3>
+    <h3>Cache State: {{ cacheState }}</h3>
+  </div>
+</body>
+</html>
