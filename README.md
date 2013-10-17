@@ -5,7 +5,7 @@ AngularJS service that provides a generic way to cache promises and ensure all c
 
 Huh?
 ------
-Without this awesome library:
+Without this awesome library, in order to properly cache and aggregate all promises for a single process/xhr request, you'd have to write custom code each and every single time...
 
 **model.js**
 
@@ -77,6 +77,10 @@ Usage
       });
 ***
 **Voila!**
+
+Example
+---------
+Please view the detailed [demo](https://github.com/chrisronline/angular-promise-cache/blob/master/example/example.html)
 
 Testing
 ---------
