@@ -4,21 +4,26 @@
   <script src="http://code.angularjs.org/1.0.7/angular.min.js"></script>
   <script src="../angular-promise-cache.min.js"></script>
   <script>
-  angular.module('apcExample', ['angular-promise-cache'])
+  angular.module('myAwesomeApp', ['angular-promise-cache'])
 
-    .controller('ExampleCtrl', function($scope, ExampleService, promiseCacheState) {
+    .controller('myAwesomeController', function($scope, myAwesomeModel, myNotSoAwesomeModel, uhOhAnotherService, promiseCacheState) {
       $scope.ttl = 1;
       $scope.callCount = 2;
 
+      var model = myAwesomeModel;
+
+      // model = myNotSoAwesomeModel;
+
       $scope.run = function() {
-        ExampleService.resetPromiseCount();
+        model.resetPromiseCount();
         for (var i = 0; i < parseInt($scope.callCount); i++) {
-          ExampleService.getData($scope.ttl * 1000);
+          model.getData($scope.ttl * 1000);
+          uhOhAnotherService.getData($scope.ttl * 1000);
           $scope.bustCache = false;
         }  
       };
 
-      $scope.amountOfPromises = ExampleService.getPromiseCount;
+      $scope.amountOfPromises = model.getPromiseCount;
       $scope.cacheState = '';
       $scope.$watch(function() { return promiseCacheState.state('getData'); }, function(state) {
         if (!state) return;
@@ -26,7 +31,7 @@
       })
     })
 
-    .factory('ExampleService', function($q, promiseCache) {
+    .factory('myAwesomeModel', function($q, promiseCache) {
       var numberOfTimesPromiseCreated = 0;
 
       return {
@@ -50,10 +55,69 @@
         }
       };
     })
+
+    .factory('uhOhAnotherService', function(myAwesomeModel) {
+      return {
+        getData: function(ttl) {
+          // Hmm I actually want the data from myAwesomeModel
+          return myAwesomeModel.getData(ttl);
+        }
+      }
+    })
+
+    .factory('myNotSoAwesomeModel', function($q, $http) {
+      var cache = null,
+        promises = [],
+        ttl_in_ms = 2000,
+        purge_date = null,
+        numberOfTimesPromiseCreated = 0;
+        
+      return {
+        getPromiseCount: function() {
+          return numberOfTimesPromiseCreated;
+        },
+        resetPromiseCount: function() {
+          numberOfTimesPromiseCreated = 0;
+        },
+        clearData: function() {
+          cache = null;
+        },
+        getData: function() {
+          var deferred = $q.defer();
+
+          if (purge_date !== null && purge_date < new Date().getTime()) {
+            this.clearData();
+          }
+          
+          if (promises.length > 0) {
+            promises.push(deferred);
+          }
+          else if (cache === null) {
+            promises.push(deferred);
+            numberOfTimesPromiseCreated++;
+            $http.get('example-data.json').then(
+              function(response) {
+                cache = response;
+                while (promises.length) {
+                  promises.shift().resolve(cache);
+                }
+                purge_date = new Date().getTime() + ttl_in_ms;
+              }
+            );
+          }
+          else {
+            deferred.resolve(cache);
+          }
+          
+          return deferred.promise;
+        }
+      };
+    });
+
   </script>
 </head>
-<body ng-app="apcExample">
-  <div ng-controller="ExampleCtrl" class="well">
+<body ng-app="myAwesomeApp">
+  <div ng-controller="myAwesomeController" class="well">
     <h2>Options</h2>
     <form name="form-horizontal">
       <div class="form-group">

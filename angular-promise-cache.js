@@ -62,6 +62,7 @@ angular.module('angular-promise-cache', [])
 
 
     return function(opts) {
+      // TODO: BETTER ERROR HANDLING
       var promise = opts.promise,
         ttl = parseInt(opts.ttl),
         bustCache = !!opts.bustCache,
