@@ -1,128 +1,200 @@
 <html>
 <head>
   <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="prism.css" rel="stylesheet">
+
+  <script src="prism.js"></script>
   <script src="http://code.angularjs.org/1.0.7/angular.min.js"></script>
   <script src="../angular-promise-cache.min.js"></script>
   <script>
+  // angular.module('myAwesomeApp', ['angular-promise-cache'])
+
+  //   .controller('myAwesomeController', function($scope, myAwesomeModel, myNotSoAwesomeModel, uhOhAnotherService, promiseCacheState) {
+  //     $scope.ttl = 1;
+  //     $scope.callCount = 2;
+
+  //     var model = myAwesomeModel;
+
+  //     //model = myNotSoAwesomeModel;
+
+  //     $scope.run = function() {
+  //       for (var i = 0; i < parseInt($scope.callCount); i++) {
+  //         model.getData($scope.ttl * 1000, $scope.bustCache);
+  //         $scope.bustCache = false;
+  //         uhOhAnotherService.getData($scope.ttl * 1000, $scope.bustCache);
+  //       }
+  //     };
+
+  //     $scope.reset = function() {
+  //       model.resetPromiseCount();
+  //     }
+  //     $scope.amountOfPromises = model.getPromiseCount;
+
+  //     $scope.cacheState = '';
+  //     $scope.$watch(function() { return promiseCacheState.state('getData'); }, function(state) {
+  //       if (!state) return;
+  //       $scope.cacheState = state.expired ? 'Expired!' : 'Expiring in ' + state.ttl + 'ms';
+  //     })
+  //   })
+
+  //   .factory('myAwesomeModel', function($q, promiseCache) {
+  //     var numberOfTimesPromiseCreated = 0;
+
+  //     return {
+  //       getPromiseCount: function() {
+  //         return numberOfTimesPromiseCreated;
+  //       },
+  //       resetPromiseCount: function() {
+  //         numberOfTimesPromiseCreated = 0;
+  //       },
+  //       getData: function(ttl, bustCache) {
+  //         return promiseCache({
+  //           promise: function() {
+  //             var deferred = $q.defer();
+  //             numberOfTimesPromiseCreated++
+  //             deferred.resolve(true);
+  //             return deferred.promise;
+  //           },
+  //           ttl: ttl,
+  //           bustCache: bustCache,
+  //           key: 'getData',
+  //           args: [ Math.random() ]
+  //         })
+  //       }
+  //     };
+  //   })
+
+  //   .factory('uhOhAnotherService', function(myAwesomeModel) {
+  //     return {
+  //       getData: function(ttl, bustCache) {
+  //         // Hmm I actually want the data from myAwesomeModel
+  //         return myAwesomeModel.getData(ttl, bustCache);
+  //       }
+  //     }
+  //   })
+
+  //   .factory('myNotSoAwesomeModel', function($q, $http) {
+  //     var cache = null,
+  //       promises = [],
+  //       ttl_in_ms = 2000,
+  //       purge_date = null,
+  //       numberOfTimesPromiseCreated = 0;
+
+  //     return {
+  //       getPromiseCount: function() {
+  //         return numberOfTimesPromiseCreated;
+  //       },
+  //       resetPromiseCount: function() {
+  //         numberOfTimesPromiseCreated = 0;
+  //       },
+  //       clearData: function() {
+  //         cache = null;
+  //       },
+  //       getData: function() {
+  //         var deferred = $q.defer();
+
+  //         if (purge_date !== null && purge_date < new Date().getTime()) {
+  //           this.clearData();
+  //         }
+
+  //         if (promises.length > 0) {
+  //           promises.push(deferred);
+  //         }
+  //         else if (cache === null) {
+  //           promises.push(deferred);
+  //           numberOfTimesPromiseCreated++;
+  //           $http.get('example-data.json').then(
+  //             function(response) {
+  //               cache = response;
+  //               while (promises.length) {
+  //                 promises.shift().resolve(cache);
+  //               }
+  //               purge_date = new Date().getTime() + ttl_in_ms;
+  //             }
+  //           );
+  //         }
+  //         else {
+  //           deferred.resolve(cache);
+  //         }
+
+  //         return deferred.promise;
+  //       }
+  //     };
+  //   });
+
+  function timer(interval, cb) {
+    var start = new Date().getTime(),
+      itv = setInterval(function() {
+        var now = new Date().getTime();
+        if (cb(now - start)) {
+          clearInterval(itv);
+        }
+      }, interval);
+  }
+
   angular.module('myAwesomeApp', ['angular-promise-cache'])
+    .controller('simpleXHRRequestCtrl', function($scope, $http, $timeout, promiseCache) {
+      var ttl = 5000;
 
-    .controller('myAwesomeController', function($scope, myAwesomeModel, myNotSoAwesomeModel, uhOhAnotherService, promiseCacheState) {
-      $scope.ttl = 1;
-      $scope.callCount = 2;
+      function makeXhrRequest() {
+        $scope.numberOfHttpRequests++;
 
-      var model = myAwesomeModel;
-
-      //model = myNotSoAwesomeModel;
-
-      $scope.run = function() {
-        for (var i = 0; i < parseInt($scope.callCount); i++) {
-          model.getData($scope.ttl * 1000, $scope.bustCache);
-          $scope.bustCache = false;
-          uhOhAnotherService.getData($scope.ttl * 1000, $scope.bustCache);
-        }
-      };
-
-      $scope.reset = function() {
-        model.resetPromiseCount();
+        timer(100, function(since) {
+          var msLeft = ttl - since;
+          $scope.$apply(function() {
+            $scope.expirationTime = Math.max(0, msLeft);
+          });
+          return msLeft < 0;
+        });
+        return $http.get('example-data.json');
       }
-      $scope.amountOfPromises = model.getPromiseCount;
 
-      $scope.cacheState = '';
-      $scope.$watch(function() { return promiseCacheState.state('getData'); }, function(state) {
-        if (!state) return;
-        $scope.cacheState = state.expired ? 'Expired!' : 'Expiring in ' + state.ttl + 'ms';
-      })
-    })
+      // Output
+      $scope.numberOfHttpRequests = 0;
+      $scope.numberOfResolvedPromises = 0;
+      $scope.expirationTime = 'n/a';
 
-    .factory('myAwesomeModel', function($q, promiseCache) {
-      var numberOfTimesPromiseCreated = 0;
-
-      return {
-        getPromiseCount: function() {
-          return numberOfTimesPromiseCreated;
-        },
-        resetPromiseCount: function() {
-          numberOfTimesPromiseCreated = 0;
-        },
-        getData: function(ttl, bustCache) {
-          return promiseCache({
-            promise: function() {
-              var deferred = $q.defer();
-              numberOfTimesPromiseCreated++
-              deferred.resolve(true);
-              return deferred.promise;
-            },
-            ttl: ttl,
-            bustCache: bustCache,
-            key: 'getData'
-          })
-        }
-      };
-    })
-
-    .factory('uhOhAnotherService', function(myAwesomeModel) {
-      return {
-        getData: function(ttl, bustCache) {
-          // Hmm I actually want the data from myAwesomeModel
-          return myAwesomeModel.getData(ttl, bustCache);
-        }
-      }
-    })
-
-    .factory('myNotSoAwesomeModel', function($q, $http) {
-      var cache = null,
-        promises = [],
-        ttl_in_ms = 2000,
-        purge_date = null,
-        numberOfTimesPromiseCreated = 0;
-        
-      return {
-        getPromiseCount: function() {
-          return numberOfTimesPromiseCreated;
-        },
-        resetPromiseCount: function() {
-          numberOfTimesPromiseCreated = 0;
-        },
-        clearData: function() {
-          cache = null;
-        },
-        getData: function() {
-          var deferred = $q.defer();
-
-          if (purge_date !== null && purge_date < new Date().getTime()) {
-            this.clearData();
-          }
-          
-          if (promises.length > 0) {
-            promises.push(deferred);
-          }
-          else if (cache === null) {
-            promises.push(deferred);
-            numberOfTimesPromiseCreated++;
-            $http.get('example-data.json').then(
-              function(response) {
-                cache = response;
-                while (promises.length) {
-                  promises.shift().resolve(cache);
-                }
-                purge_date = new Date().getTime() + ttl_in_ms;
-              }
-            );
-          }
-          else {
-            deferred.resolve(cache);
-          }
-          
-          return deferred.promise;
-        }
+      // Actions
+      $scope.send = function() {
+        promiseCache({ promise: makeXhrRequest, ttl: ttl }).then(function() {
+          $scope.numberOfResolvedPromises++;
+        });
       };
     });
-
   </script>
 </head>
 <body ng-app="myAwesomeApp">
-  <div ng-controller="myAwesomeController" class="well">
-    <h2>Options</h2>
+  <div ng-controller="simpleXHRRequestCtrl" class="well">
+    <h2>Simple XHR Request</h2>
+
+    <h3>Code</h3>
+    <pre>
+      <code class="language-javascript">
+        angular.module('myAwesomeApp', ['angular-promise-cache'])
+          .controller('simpleXHRRequestCtrl', function($scope) {
+            var ttl = 5000;
+
+            function makeXhrRequest() {
+              return $http.get('example-data.json');
+            }
+
+            $scope.send = function() {
+              promiseCache({ promise: makeXhrRequest, ttl: ttl });
+            };
+          });
+      </code>
+    </pre>
+
+    <h3>Output</h3>
+    <div>Number of HTTP requests: {{ numberOfHttpRequests }}</div>
+    <div>Number of resolved promises: {{ numberOfResolvedPromises }}</div>
+    <div>Expiration time of cached promise (in ms): {{ expirationTime }}</div>
+
+    <h3>Actions</h3>
+    <button class="btn btn-default" ng-click="send()">Send a request</button>
+  </div>
+
+    <!-- h2>Options</h2>
     <form name="form-horizontal">
       <div class="form-group">
         <label for="callCount" class="col-lg-2 control-label">Call count</label>
@@ -149,7 +221,7 @@
     </form>
     <h2>Output</h2>
     <h3>Created Promises: {{ amountOfPromises() }}</h3>
-    <h3>Cache State: {{ cacheState }}</h3>
+    <h3>Cache State: {{ cacheState }}</h3> -->
   </div>
 </body>
 </html>
