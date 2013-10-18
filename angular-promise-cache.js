@@ -23,22 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 'use strict';
 
 angular.module('angular-promise-cache', [])
-  .factory('promiseCacheState', function() {
-    var state = {};
-
-    return {
-      state: function(key, _state) {
-        if (typeof _state !== 'undefined') {
-          state[key] = _state;
-        }
-        return state[key];
-      },
-      all: function() {
-        return state;
-      }
-    }
-  })
-  .factory('promiseCache', ['promiseCacheState', function(promiseCacheState) {
+  .factory('promiseCache', function() {
     var memos = {},
       DEFAULT_TTL_IN_MS = 5000,
       keyDelimiter = '$',
@@ -76,7 +61,6 @@ angular.module('angular-promise-cache', [])
         memos[strPromise] = memoize(promise, function() {
           return keyDelimiter + dateReference + keyDelimiter + Array.prototype.slice.call(arguments);
         });
-        promiseCacheState.state(strPromise, { expired: false, ttl: dateReference + (ttl || DEFAULT_TTL_IN_MS) - now });
       }
       else {
         memos[strPromise].cache = (function() {
@@ -94,11 +78,9 @@ angular.module('angular-promise-cache', [])
 
             if (omit) {
               dateReference = now;
-              promiseCacheState.state(strPromise, { expired: true });
             }
             else {
               updatedCache[key] = cache[key];
-              promiseCacheState.state(strPromise, { expired: false, ttl: timestamp + (ttl || DEFAULT_TTL_IN_MS) - now });
             }
           }
 
@@ -108,4 +90,4 @@ angular.module('angular-promise-cache', [])
 
       return memos[strPromise].apply(this, args);
     }
-  }]);
+  });
