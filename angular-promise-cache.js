@@ -44,15 +44,7 @@ angular.module('angular-promise-cache', [])
       keyDelimiter = '$',
       whitespaceRegex = /\s+/g,
       dateReference,
-      firstKeyAndObject = function first(obj) {
-        var k;
-        for (k in obj) {
-          return {
-            key: k,
-            value: obj[k]
-          };
-        }
-      },
+
       memoize = typeof _ !== 'undefined' && hasOwnProperty.call(_, 'memoize') ? _.memoize :
         function memoize(func, resolver) {
           var keyPrefix = +new Date + '',
@@ -87,19 +79,31 @@ angular.module('angular-promise-cache', [])
         promiseCacheState.state(strPromise, { expired: false, ttl: dateReference + (ttl || DEFAULT_TTL_IN_MS) - now });
       }
       else {
-        var first = firstKeyAndObject(memos[strPromise].cache),
-          parts = first.key.split(keyDelimiter),
-          timestamp = parseInt(parts[1]),
-          omit = bustCache || timestamp + (ttl || DEFAULT_TTL_IN_MS) < now;
+        memos[strPromise].cache = (function() {
+          var updatedCache = {},
+            cache = memos[strPromise].cache,
+            key,
+            parts,
+            timestamp,
+            omit;
 
-        if (omit) {
-          dateReference = now;
-          promiseCacheState.state(strPromise, { expired: true });
-          memos[strPromise].cache = {};
-        }
-        else {
-          promiseCacheState.state(strPromise, { expired: false, ttl: timestamp + (ttl || DEFAULT_TTL_IN_MS) - now });
-        }
+          for (key in cache) {
+            parts     = key.split(keyDelimiter);
+            timestamp = parseInt(parts[1]);
+            omit      = bustCache || timestamp + (ttl || DEFAULT_TTL_IN_MS) < now;
+
+            if (omit) {
+              dateReference = now;
+              promiseCacheState.state(strPromise, { expired: true });
+            }
+            else {
+              updatedCache[key] = cache[key];
+              promiseCacheState.state(strPromise, { expired: false, ttl: timestamp + (ttl || DEFAULT_TTL_IN_MS) - now });
+            }
+          }
+
+          return updatedCache;
+        }());
       }
 
       return memos[strPromise].apply(this, args);
