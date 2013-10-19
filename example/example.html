@@ -7,171 +7,74 @@
   <script src="http://code.angularjs.org/1.0.7/angular.min.js"></script>
   <script src="../angular-promise-cache.min.js"></script>
   <script>
-  // angular.module('myAwesomeApp', ['angular-promise-cache'])
+  var Countdown = function() {
+    var interval,
+      start;
 
-  //   .controller('myAwesomeController', function($scope, myAwesomeModel, myNotSoAwesomeModel, uhOhAnotherService, promiseCacheState) {
-  //     $scope.ttl = 1;
-  //     $scope.callCount = 2;
-
-  //     var model = myAwesomeModel;
-
-  //     //model = myNotSoAwesomeModel;
-
-  //     $scope.run = function() {
-  //       for (var i = 0; i < parseInt($scope.callCount); i++) {
-  //         model.getData($scope.ttl * 1000, $scope.bustCache);
-  //         $scope.bustCache = false;
-  //         uhOhAnotherService.getData($scope.ttl * 1000, $scope.bustCache);
-  //       }
-  //     };
-
-  //     $scope.reset = function() {
-  //       model.resetPromiseCount();
-  //     }
-  //     $scope.amountOfPromises = model.getPromiseCount;
-
-  //     $scope.cacheState = '';
-  //     $scope.$watch(function() { return promiseCacheState.state('getData'); }, function(state) {
-  //       if (!state) return;
-  //       $scope.cacheState = state.expired ? 'Expired!' : 'Expiring in ' + state.ttl + 'ms';
-  //     })
-  //   })
-
-  //   .factory('myAwesomeModel', function($q, promiseCache) {
-  //     var numberOfTimesPromiseCreated = 0;
-
-  //     return {
-  //       getPromiseCount: function() {
-  //         return numberOfTimesPromiseCreated;
-  //       },
-  //       resetPromiseCount: function() {
-  //         numberOfTimesPromiseCreated = 0;
-  //       },
-  //       getData: function(ttl, bustCache) {
-  //         return promiseCache({
-  //           promise: function() {
-  //             var deferred = $q.defer();
-  //             numberOfTimesPromiseCreated++
-  //             deferred.resolve(true);
-  //             return deferred.promise;
-  //           },
-  //           ttl: ttl,
-  //           bustCache: bustCache,
-  //           key: 'getData',
-  //           args: [ Math.random() ]
-  //         })
-  //       }
-  //     };
-  //   })
-
-  //   .factory('uhOhAnotherService', function(myAwesomeModel) {
-  //     return {
-  //       getData: function(ttl, bustCache) {
-  //         // Hmm I actually want the data from myAwesomeModel
-  //         return myAwesomeModel.getData(ttl, bustCache);
-  //       }
-  //     }
-  //   })
-
-  //   .factory('myNotSoAwesomeModel', function($q, $http) {
-  //     var cache = null,
-  //       promises = [],
-  //       ttl_in_ms = 2000,
-  //       purge_date = null,
-  //       numberOfTimesPromiseCreated = 0;
-
-  //     return {
-  //       getPromiseCount: function() {
-  //         return numberOfTimesPromiseCreated;
-  //       },
-  //       resetPromiseCount: function() {
-  //         numberOfTimesPromiseCreated = 0;
-  //       },
-  //       clearData: function() {
-  //         cache = null;
-  //       },
-  //       getData: function() {
-  //         var deferred = $q.defer();
-
-  //         if (purge_date !== null && purge_date < new Date().getTime()) {
-  //           this.clearData();
-  //         }
-
-  //         if (promises.length > 0) {
-  //           promises.push(deferred);
-  //         }
-  //         else if (cache === null) {
-  //           promises.push(deferred);
-  //           numberOfTimesPromiseCreated++;
-  //           $http.get('example-data.json').then(
-  //             function(response) {
-  //               cache = response;
-  //               while (promises.length) {
-  //                 promises.shift().resolve(cache);
-  //               }
-  //               purge_date = new Date().getTime() + ttl_in_ms;
-  //             }
-  //           );
-  //         }
-  //         else {
-  //           deferred.resolve(cache);
-  //         }
-
-  //         return deferred.promise;
-  //       }
-  //     };
-  //   });
-
-  function timer(interval, cb) {
-    var start = new Date().getTime(),
-      itv = setInterval(function() {
+    this.start = function(intervalTime, cb) {
+      start = new Date().getTime();
+      interval = setInterval(function() {
         var now = new Date().getTime();
         if (cb(now - start)) {
-          clearInterval(itv);
+          clearInterval(interval);
         }
-      }, interval);
+      }, intervalTime);
+    };
+
+    this.stop = function() {
+      clearInterval(interval);
+    };
   }
-
-  angular.module('myAwesomeApp', ['angular-promise-cache'])
-    .controller('simpleXHRRequestCtrl', function($scope, $http, $timeout, promiseCache) {
-      var ttl = 5000;
-
-      function makeXhrRequest() {
-        $scope.numberOfHttpRequests++;
-
-        timer(100, function(since) {
-          var msLeft = ttl - since;
-          $scope.$apply(function() {
-            $scope.expirationTime = Math.max(0, msLeft);
-          });
-          return msLeft < 0;
-        });
-        return $http.get('example-data.json');
-      }
-
-      // Output
-      $scope.numberOfHttpRequests = 0;
-      $scope.numberOfResolvedPromises = 0;
-      $scope.expirationTime = 'n/a';
-
-      // Actions
-      $scope.send = function() {
-        promiseCache({ promise: makeXhrRequest, ttl: ttl }).then(function() {
-          $scope.numberOfResolvedPromises++;
-        });
-      };
-    });
-  </script>
+  </script>  
 </head>
 <body ng-app="myAwesomeApp">
   <div ng-controller="simpleXHRRequestCtrl" class="well">
+    <script>
+    angular.module('myAwesomeApp', ['angular-promise-cache'])
+      .controller('simpleXHRRequestCtrl', function($scope, $http, $timeout, promiseCache) {
+        var ttl = 5000,
+          countdown = new Countdown();
+
+        function makeXhrRequest() {
+          $scope.numberOfHttpRequests++;
+          $scope.expirationTime = ttl;
+          countdown.start(100, function(since) {
+            var msLeft = ttl - since;
+            $scope.$apply(function() {
+              $scope.expirationTime = Math.max(0, msLeft);
+            });
+            return msLeft < 0;
+          });
+          return $http.get('example-data.json');
+        }
+
+        // Output
+        $scope.ttl = ttl;
+        $scope.numberOfHttpRequests = 0;
+        $scope.numberOfResolvedPromises = 0;
+        $scope.expirationTime = 0;
+
+        // Actions
+        $scope.send = function() {
+          promiseCache({ promise: makeXhrRequest, ttl: ttl }).then(function() {
+            $scope.numberOfResolvedPromises++;
+          });
+        };
+        $scope.reset = function() {
+          $scope.numberOfHttpRequests = 0;
+          $scope.numberOfResolvedPromises = 0;
+          $scope.expirationTime = 0;
+          countdown.stop();
+        };
+      });
+    </script>
     <h2>Simple XHR Request</h2>
 
     <h3>Code</h3>
     <pre>
       <code class="language-javascript">
         angular.module('myAwesomeApp', ['angular-promise-cache'])
-          .controller('simpleXHRRequestCtrl', function($scope) {
+          .controller('simpleXHRRequestCtrl', function($scope, $http, promiseCache) {
             var ttl = 5000;
 
             function makeXhrRequest() {
@@ -192,36 +95,7 @@
 
     <h3>Actions</h3>
     <button class="btn btn-default" ng-click="send()">Send a request</button>
-  </div>
-
-    <!-- h2>Options</h2>
-    <form name="form-horizontal">
-      <div class="form-group">
-        <label for="callCount" class="col-lg-2 control-label">Call count</label>
-        <div class="col-lg-10">
-          <input type="text" class="form-control" id="callCount" ng-model="callCount"/>
-        </div>
-        <div class="clearfix"></div>
-      </div>
-      <div class="form-group">
-        <label for="ttl" class="col-lg-2 control-label">TTL (in seconds)</label>
-        <div class="col-lg-10">
-          <input type="text" class="form-control" id="ttl" ng-model="ttl"/>
-        </div>
-        <div class="clearfix"></div>
-      </div>
-      <div class="form-group">
-        <div class="col-lg-offset-2 col-lg-10">
-          <button ng-click="run()" class="btn btn-default">Run</button>
-          <button ng-click="bustCache=true" class="btn btn-default">Bust Cache</button>
-          <button ng-click="reset()" class="btn btn-default">Reset Promise Count</button>
-        </div>
-        <div class="clearfix"></div>
-      </div>
-    </form>
-    <h2>Output</h2>
-    <h3>Created Promises: {{ amountOfPromises() }}</h3>
-    <h3>Cache State: {{ cacheState }}</h3> -->
+    <button class="btn btn-default" ng-click="reset()">Reset</button>
   </div>
 </body>
 </html>
