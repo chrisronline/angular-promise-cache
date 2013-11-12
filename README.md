@@ -132,7 +132,12 @@ promiseCache(opts)
 
       // Identifier for the cached promise. Default is promise.toString()
       // This is useful if you are creating different promises that need to share the same cache
-      key: string
+      key: string,
+
+      // [v0.0.3]
+      // This function is called on promise failure and returning true will forcefully expire
+      // the cache for this promise
+      expireOnFailure: function
     }
 
 Example
