@@ -3,15 +3,13 @@
 describe('angular-promise-cache', function() {
   var apc,
     q,
-    scope,
-    state;
+    scope;
 
   beforeEach(module('angular-promise-cache'));
-  beforeEach(inject(function($q, $rootScope, promiseCache, promiseCacheState) {
+  beforeEach(inject(function($q, $rootScope, promiseCache) {
     q = $q;
     scope = $rootScope;
     apc = promiseCache;
-    state = promiseCacheState;
   }));
 
   it('should be a function', function() {
@@ -83,7 +81,7 @@ describe('angular-promise-cache', function() {
     runs(function() {
       apc({ promise: getPromise, ttl: 1000 }).then(function(idx) { expect(idx).toBe(2); });
       scope.$apply();
-    });    
+    });
   });
 
   it('should not expire too early', function() {
@@ -104,36 +102,50 @@ describe('angular-promise-cache', function() {
     runs(function() {
       apc({ promise: getPromise, ttl: 1000 }).then(function(idx) { expect(idx).toBe(1); });
       scope.$apply();
-    });    
+    });
   });
 
-  it('should set the state', function() {
-    var calls = 0;
-    function getPromise() {
-      var deferred = q.defer();
-      deferred.resolve(++calls);
-      return deferred.promise;
-    }
+  it('should support manually expiring the cache', function() {
+    var calls = 0,
+      obj = {
+        promise: function() {
+          var deferred = q.defer();
+          if (++calls === 1) {
+            deferred.reject(calls);
+          }
+          else {
+            deferred.resolve(calls);
+          }
+          return deferred.promise;
+        },
+        ttl: 1000,
+        expireOnFailure: function(request) {
+          return true;
+        }
+      },
+      fns = {
+        one: function(idx) {
+          expect(idx).toBe(1);
+        },
+        two: function(idx) {
+          expect(idx).toBe(2);
+        }
+      };
 
     runs(function() {
-      apc({ promise: getPromise, key: 'apc', ttl: 1000 }).then(function(idx) { expect(idx).toBe(1); });
+      spyOn(fns, 'one').andCallThrough();
+      apc(obj).then(angular.noop, fns.one);
       scope.$apply();
+      expect(fns.one).toHaveBeenCalled();
     });
 
     waits(500);
 
     runs(function() {
-      apc({ promise: getPromise, key: 'apc', ttl: 1000 })
-      expect(state.state('apc').expired).toBe(false);
-      expect(state.state('apc').ttl < 500).toBe(true);
-    });
-
-    waits(500);
-
-    runs(function() {
-      apc({ promise: getPromise, key: 'apc', ttl: 1000 });
+      spyOn(fns, 'two').andCallThrough();
+      apc(obj).then(fns.two);
       scope.$apply();
-      expect(state.state('apc').expired).toBe(true);
+      expect(fns.two).toHaveBeenCalled();
     });
   });
 });

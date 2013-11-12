@@ -51,9 +51,13 @@ angular.module('angular-promise-cache', [])
       var promise = opts.promise,
         ttl = parseInt(opts.ttl),
         bustCache = !!opts.bustCache,
+        // v0.0.3: Adding ability to specify a callback function to forcefully expire the cache
+        // for a promise that returns a failure
+        expireOnFailure = opts.expireOnFailure,
         args = opts.args,
         now = new Date().getTime(),
-        strPromise = opts.key || promise.toString().replace(whitespaceRegex, '');
+        strPromise = opts.key || promise.toString().replace(whitespaceRegex, ''),
+        ret;
 
       dateReference = dateReference || now;
 
@@ -66,6 +70,7 @@ angular.module('angular-promise-cache', [])
         memos[strPromise].cache = (function() {
           var updatedCache = {},
             cache = memos[strPromise].cache,
+            forceExpiration = !!memos[strPromise].forceExpiration,
             key,
             parts,
             timestamp,
@@ -74,7 +79,7 @@ angular.module('angular-promise-cache', [])
           for (key in cache) {
             parts     = key.split(keyDelimiter);
             timestamp = parseInt(parts[1]);
-            omit      = bustCache || timestamp + (ttl || DEFAULT_TTL_IN_MS) < now;
+            omit      = bustCache || forceExpiration || timestamp + (ttl || DEFAULT_TTL_IN_MS) < now;
 
             if (omit) {
               dateReference = now;
@@ -84,10 +89,26 @@ angular.module('angular-promise-cache', [])
             }
           }
 
+          // Always reset this after expiring the cache
+          // so it is not "stuck on"
+          memos[strPromise].forceExpiration = false;
+
           return updatedCache;
         }());
       }
 
-      return memos[strPromise].apply(this, args);
+      ret = memos[strPromise].apply(this, args);
+      if (angular.isFunction(expireOnFailure)) {
+        ret.then(
+          angular.noop,
+          function() {
+            if (expireOnFailure.apply(this, arguments)) {
+              memos[strPromise].forceExpiration = true;
+            }
+            return arguments;
+          }
+        );
+      }
+      return ret;
     }
   });

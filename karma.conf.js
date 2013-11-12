@@ -23,13 +23,22 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      
+
     ],
+
+    preprocessors: {
+      'angular-promise-cache.js': 'coverage'
+    },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress'],
+    reporters: ['coverage', 'progress'],
+
+    coverageReporter: {
+      type : 'html',
+      dir : 'coverage/'
+    },
 
 
     // web server port

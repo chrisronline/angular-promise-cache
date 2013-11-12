@@ -25,7 +25,7 @@
       clearInterval(interval);
     };
   }
-  </script>  
+  </script>
 </head>
 <body ng-app="myAwesomeApp">
   <div ng-controller="simpleXHRRequestCtrl" class="well">
@@ -56,9 +56,22 @@
 
         // Actions
         $scope.send = function() {
-          promiseCache({ promise: makeXhrRequest, ttl: ttl }).then(function() {
-            $scope.numberOfResolvedPromises++;
-          });
+          promiseCache({
+            promise: makeXhrRequest,
+            ttl: ttl,
+            // New feature in v0.0.3 - supports forcefully expiring the promise
+            // cache on a failure if this function returns true
+            expireOnFailure: function(request) {
+              return request.status !== 200;
+            }
+          }).then(
+            function() {
+              $scope.numberOfResolvedPromises++;
+            },
+            function() {
+              $scope.numberOfResolvedPromises++;
+            }
+          );
         };
         $scope.reset = function() {
           $scope.numberOfHttpRequests = 0;
