@@ -90,8 +90,8 @@ npm:
     npm install angular-promise-cache --save
 
 Manual:
-* [Development Build - 1.31KB gzipped (2.6KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
-* [Minified/Production Build - 451 bytes gzipped (769 uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
+* [Development Build - 1.52KB gzipped (3.16KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
+* [Minified/Production Build - 529 bytes gzipped (969 uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
 
 Usage
 ---------
