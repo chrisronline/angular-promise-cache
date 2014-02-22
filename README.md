@@ -3,6 +3,10 @@ angular-promise-cache
 
 AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly.
 
+Latest Update
+------
+v0.0.5 is now available and comes packaged with support for local storage!
+
 Huh?
 ------
 Our goal is to allow this kind of code...
@@ -90,8 +94,8 @@ npm:
     npm install angular-promise-cache --save
 
 Manual:
-* [Development Build - 1.52KB gzipped (3.16KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
-* [Minified/Production Build - 529 bytes gzipped (969 uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
+* [Development Build - 2.21KB gzipped (5.15KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
+* [Minified/Production Build - 836 bytes gzipped (1.64KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
 
 Usage
 ---------
@@ -137,8 +141,37 @@ promiseCache(opts)
       // [v0.0.3]
       // This function is called on promise failure and returning true will forcefully expire
       // the cache for this promise
-      expireOnFailure: function
+      expireOnFailure: function,
+
+      // [v0.0.5]
+      // If true, the response from the promise will be cached in local storage based on the ttl
+      localStorageEnabled: boolean,
+      // Determines the key that will be used to store within local storage
+      // If omitted, will default to the 'key' identifier used above
+      localStorageKey: string
+
     }
+
+Events
+--------
+Added in v0.0.5, the following events are now supported:
+
+```js
+$scope.$on('angular-promise-cache.new', function(evt, key) {
+    // @key ${PROMISE_CACHE_CREATION_TIMESTAMP}$
+    // Fired when calling when an uncached promise
+});
+$scope.$on('angular-promise-cache.expired', function(evt, key) {
+    // @key ${PROMISE_CACHE_CREATION_TIMESTAMP}$
+    // Fired when a promise expired
+});
+$scope.$on('angular-promise-cache.active', function(evt, key, expireTimestamp) {
+    // @key ${PROMISE_CACHE_CREATION_TIMESTAMP}$
+    // @expireTimestamp {PROMISE_EXPIRATION_TIMESTAMP}
+    // Fired when a cached promise is returned
+});
+```
+For actual examples, please view the source of the example application.
 
 Example
 ---------
@@ -154,3 +187,9 @@ To run:
 
     karma start
     karma run
+
+Release Notes
+---------
+- v0.0.5 - Added local storage support
+- v0.0.4 - (skipped)
+- v0.0.3 - Added expireOnFailure functionality

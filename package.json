@@ -1,6 +1,6 @@
 {
   "name": "angular-promise-cache",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly.",
   "main": "angular-promise-cache.js",
   "directories": {
@@ -26,14 +26,15 @@
   "devDependencies": {
     "istanbul": "~0.1.44",
     "karma-script-launcher": "~0.1.0",
-    "karma-firefox-launcher": "~0.1.0",
-    "karma-chrome-launcher": "~0.1.0",
+    "karma-firefox-launcher": "~0.1.3",
+    "karma-chrome-launcher": "~0.1.2",
     "karma-html2js-preprocessor": "~0.1.0",
-    "karma-jasmine": "~0.1.3",
-    "karma-requirejs": "~0.1.0",
-    "karma-coffee-preprocessor": "~0.1.0",
-    "karma-phantomjs-launcher": "~0.1.0",
-    "karma": "~0.10.4",
-    "karma-coverage": "~0.1.2"
+    "karma-jasmine": "~0.1.5",
+    "karma-requirejs": "~0.2.1",
+    "karma-coffee-preprocessor": "~0.1.3",
+    "karma-phantomjs-launcher": "~0.1.2",
+    "karma": "~0.10.9",
+    "karma-coverage": "~0.2.0",
+    "requirejs": "~2.1.11"
   }
 }

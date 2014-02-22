@@ -148,4 +148,157 @@ describe('angular-promise-cache', function() {
       expect(fns.two).toHaveBeenCalled();
     });
   });
+
+  it('should fire events', function() {
+    function getPromise() {
+      var deferred = q.defer();
+      deferred.resolve();
+      return deferred.promise;
+    }
+
+    function reset() {
+      newFired = false;
+      expiredFired = false;
+      activeFired = false;
+    }
+
+    var ttl = 500;
+
+    var newFired = false,
+      expiredFired = false,
+      activeFired = false;
+
+    scope.$on('angular-promise-cache.new', function() { newFired = true; });
+    scope.$on('angular-promise-cache.expired', function() { expiredFired = true; });
+    scope.$on('angular-promise-cache.active', function() { activeFired = true; });
+
+    runs(function() {
+      apc({ promise: getPromise, ttl: ttl });
+      expect(newFired).toBe(true);
+      expect(expiredFired).toBe(false);
+      expect(activeFired).toBe(false);
+      reset();
+    });
+
+    runs(function() {
+      apc({ promise: getPromise, ttl: ttl });
+      expect(newFired).toBe(false);
+      expect(expiredFired).toBe(false);
+      expect(activeFired).toBe(true);
+      reset();
+    });
+
+    waits(ttl);
+
+    runs(function() {
+      apc({ promise: getPromise, ttl: ttl });
+      expect(newFired).toBe(false);
+      expect(expiredFired).toBe(true);
+      expect(activeFired).toBe(false);
+      reset();
+    });
+
+  });
+
+  //v0.0.4 Local Storage
+  describe('localStorage support', function() {
+    var ls = window.localStorage,
+      lsKey = 'test';
+
+    afterEach(function() {
+      ls.removeItem(lsKey);
+    });
+
+    it('should support local storage', function() {
+      apc({
+        promise: function() {
+          var deferred = q.defer();
+          deferred.resolve();
+          return deferred.promise;
+        },
+        localStorageEnabled: true,
+        localStorageKey: lsKey
+      });
+
+      scope.$apply();
+      expect(ls.getItem(lsKey)).not.toBeNull();
+    });
+
+    it('should gracefully handle failed local storage deserialization', function() {
+      // Bad value
+      ls.setItem(lsKey, 'foo');
+
+      apc({
+        promise: function() {
+          var deferred = q.defer();
+          deferred.resolve();
+          return deferred.promise;
+        },
+        localStorageEnabled: true,
+        localStorageKey: lsKey
+      });
+
+      scope.$apply();
+      expect(ls.getItem(lsKey)).not.toBeNull();
+
+      // Bad key
+
+      ls.setItem(lsKey, '{"response":null,"resolver":"foo"}');
+
+      apc({
+        promise: function() {
+          var deferred = q.defer();
+          deferred.resolve();
+          return deferred.promise;
+        },
+        localStorageEnabled: true,
+        localStorageKey: lsKey
+      });
+
+      scope.$apply();
+      expect(ls.getItem(lsKey)).not.toBeNull();
+    });
+
+    it('should remove the item on expiration', function() {
+      var calls = 0,
+        ttl = 500;
+
+      function getPromise() {
+        var deferred = q.defer();
+        // The promise response will be resaved on successfull promise
+        // resolution so we need to reject the one that should fail
+        if (++calls === 2) {
+          deferred.reject();
+        }
+        else {
+          deferred.resolve();
+        }
+        return deferred.promise;
+      }
+
+      runs(function() {
+        apc({
+          promise: getPromise,
+          ttl: ttl,
+          localStorageEnabled: true,
+          localStorageKey: lsKey
+        });
+        scope.$apply();
+        expect(ls.getItem(lsKey)).not.toBeNull();
+      });
+
+      waits(ttl);
+
+      runs(function() {
+        apc({
+          promise: getPromise,
+          ttl: ttl,
+          localStorageEnabled: true,
+          localStorageKey: lsKey
+        });
+        scope.$apply();
+        expect(ls.getItem(lsKey)).toBeNull();
+      });
+    });
+  });
 });
