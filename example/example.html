@@ -69,16 +69,16 @@
         }
 
         // v0.0.5 Events
-        $scope.$on('angular-promise-cache.new', function() {
-          console.log('angular-promise-cache.new');
+        $scope.$on('angular-promise-cache.new', function(evt, key, strPromise) {
+          console.log('angular-promise-cache.new', strPromise);
           expiresAt = new Date().getTime() + ttl;
         });
-        $scope.$on('angular-promise-cache.expired', function(evt, key) {
-          console.log('angular-promise-cache.expired', key);
+        $scope.$on('angular-promise-cache.expired', function(evt, key, strPromise) {
+          console.log('angular-promise-cache.expired', key, strPromise);
           expiresAt = new Date().getTime() + ttl;
         });
-        $scope.$on('angular-promise-cache.active', function(evt, key, expirationTime) {
-          console.log('angular-promise-cache.active', key, expirationTime);
+        $scope.$on('angular-promise-cache.active', function(evt, key, expirationTime, strPromise) {
+          console.log('angular-promise-cache.active', key, expirationTime, strPromise);
           expiresAt = expirationTime;
         });
 

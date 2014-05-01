@@ -28,7 +28,7 @@ angular.module('angular-promise-cache', [])
       DEFAULT_TTL_IN_MS = 5000,
       keyDelimiter = '$',
       whitespaceRegex = /\s+/g,
-      dateReference,
+      dateReferences = {},
       ls = window.localStorage,
       store = function(key, complexValue) {
         ls.setItem(key, JSON.stringify(complexValue));
@@ -47,8 +47,8 @@ angular.module('angular-promise-cache', [])
         return str;
       },
 
-      getTimestamp = function(key) {
-        return parseInt(key.split(keyDelimiter)[1]) || dateReference;
+      getTimestamp = function(key, strPromise) {
+        return parseInt(key.split(keyDelimiter)[1]) || dateReferences[strPromise];
       },
       formatCacheKey = function(ts) {
         return keyDelimiter + ts + keyDelimiter;
@@ -91,7 +91,7 @@ angular.module('angular-promise-cache', [])
         lsDuration,
         lsDeferred;
 
-      dateReference = dateReference || now;
+      dateReferences[strPromise] = dateReferences[strPromise] || now;
 
       if (lsEnabled) {
         if (!lsObj || typeof lsObj !== 'object' || !hasOwnProperty.call(lsObj, 'resolver') || !hasOwnProperty.call(lsObj, 'response')) {
@@ -103,7 +103,7 @@ angular.module('angular-promise-cache', [])
           // Extract the timestamp from the local storage object
           // This timestamp represents the last time this promise
           // expired
-          lsTs = getTimestamp(lsObj.resolver);
+          lsTs = getTimestamp(lsObj.resolver, strPromise);
 
           // Determine how much longer it has to live
           lsDuration = lsTs + ttl - now;
@@ -128,9 +128,9 @@ angular.module('angular-promise-cache', [])
 
       if (!hasOwnProperty.call(memos, strPromise)) {
         memos[strPromise] = memoize(promise, function() {
-          return formatCacheKey(dateReference);
+          return formatCacheKey(dateReferences[strPromise]);
         });
-        $rootScope.$broadcast('angular-promise-cache.new', formatCacheKey(dateReference));
+        $rootScope.$broadcast('angular-promise-cache.new', formatCacheKey(dateReferences[strPromise]), strPromise);
       }
       else {
         memos[strPromise].cache = (function() {
@@ -142,19 +142,19 @@ angular.module('angular-promise-cache', [])
             omit;
 
           for (key in cache) {
-            timestamp = getTimestamp(key);
+            timestamp = getTimestamp(key, strPromise);
             omit      = bustCache || forceExpiration || timestamp + ttl < now;
 
             if (omit) {
-              $rootScope.$broadcast('angular-promise-cache.expired', key);
-              dateReference = now;
+              $rootScope.$broadcast('angular-promise-cache.expired', key, strPromise);
+              dateReferences[strPromise] = now;
               if (lsEnabled) {
-                lsTs = dateReference;
+                lsTs = dateReferences[strPromise];
                 remove(lsKey);
               }
             }
             else {
-              $rootScope.$broadcast('angular-promise-cache.active', key, timestamp + ttl);
+              $rootScope.$broadcast('angular-promise-cache.active', key, timestamp + ttl, strPromise);
               updatedCache[key] = cache[key];
             }
           }
@@ -171,7 +171,7 @@ angular.module('angular-promise-cache', [])
         function(response) {
           if (lsEnabled) {
             lsObj.response = arguments[0];
-            lsObj.resolver = formatCacheKey(lsTs || dateReference);
+            lsObj.resolver = formatCacheKey(lsTs || dateReferences[strPromise]);
             store(lsKey, lsObj);
           }
           return response;

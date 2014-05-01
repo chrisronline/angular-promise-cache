@@ -301,4 +301,38 @@ describe('angular-promise-cache', function() {
       });
     });
   });
+
+  it('should not expire all items when on expires', function() {
+    var calls1 = 0, calls2 = 0;
+    function getPromise1() {
+      var deferred = q.defer();
+      deferred.resolve(++calls1);
+      return deferred.promise;
+    }
+
+    function getPromise2() {
+      var deferred = q.defer();
+      deferred.resolve(++calls2);
+      return deferred.promise;
+    }
+
+    var one = { key: 1, promise: getPromise1, ttl: 1000 };
+    var two = { key: 2, promise: getPromise2, ttl: 500 };
+
+    runs(function() {
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      apc(two).then(function(idx) { expect(idx).toBe(1); });
+      scope.$apply();
+    });
+
+    waits(500);
+
+    runs(function() {
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      apc(two).then(function(idx) { expect(idx).toBe(2); });
+      scope.$apply();
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      scope.$apply();
+    });
+  });
 });

@@ -14,8 +14,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'http://code.angularjs.org/1.0.7/angular.min.js',
-      'http://code.angularjs.org/1.0.7/angular-mocks.js',
+      'bower_components/angular/angular.min.js',
+      'bower_components/angular-mocks/angular-mocks.js',
       'angular-promise-cache.js',
       'angular-promise-cache.test.js',
     ],
