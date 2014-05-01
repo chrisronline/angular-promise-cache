@@ -5,6 +5,7 @@ AngularJS service that provides a generic way to cache promises and ensure all c
 
 Latest Update
 ------
+v0.0.6 includes a major fix
 v0.0.5 is now available and comes packaged with support for local storage!
 
 Huh?
@@ -94,8 +95,8 @@ npm:
     npm install angular-promise-cache --save
 
 Manual:
-* [Development Build - 2.21KB gzipped (5.15KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
-* [Minified/Production Build - 836 bytes gzipped (1.64KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
+* [Development Build - 2.35KB gzipped (6.61KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
+* [Minified/Production Build - 857 bytes gzipped (1.68KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
 
 Usage
 ---------
@@ -157,17 +158,20 @@ Events
 Added in v0.0.5, the following events are now supported:
 
 ```js
-$scope.$on('angular-promise-cache.new', function(evt, key) {
+$scope.$on('angular-promise-cache.new', function(evt, key, strPromise) {
     // @key ${PROMISE_CACHE_CREATION_TIMESTAMP}$
+    // @strPromise unique identifier for the promise
     // Fired when calling when an uncached promise
 });
-$scope.$on('angular-promise-cache.expired', function(evt, key) {
+$scope.$on('angular-promise-cache.expired', function(evt, key, strPromise) {
     // @key ${PROMISE_CACHE_CREATION_TIMESTAMP}$
+    // @strPromise unique identifier for the promise
     // Fired when a promise expired
 });
-$scope.$on('angular-promise-cache.active', function(evt, key, expireTimestamp) {
+$scope.$on('angular-promise-cache.active', function(evt, key, expireTimestamp, strPromise) {
     // @key ${PROMISE_CACHE_CREATION_TIMESTAMP}$
     // @expireTimestamp {PROMISE_EXPIRATION_TIMESTAMP}
+    // @strPromise unique identifier for the promise
     // Fired when a cached promise is returned
 });
 ```
@@ -190,6 +194,7 @@ To run:
 
 Release Notes
 ---------
+- v0.0.6 - Fixing issue #2
 - v0.0.5 - Added local storage support
 - v0.0.4 - (skipped)
 - v0.0.3 - Added expireOnFailure functionality
