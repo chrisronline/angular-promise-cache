@@ -81,6 +81,10 @@
           console.log('angular-promise-cache.active', key, expirationTime, strPromise);
           expiresAt = expirationTime;
         });
+        $scope.$on('angular-promise-cache.removed', function(evt, key) {
+          console.log('angular-promise-cache.removed', key);
+          expiresAt = 0;
+        });
 
         // Start the countdown
         countdown.start();
@@ -127,6 +131,9 @@
         $scope.clear = function() {
           localStorage.removeItem('example.ls');
         };
+        $scope.remove = function() {
+          promiseCache.remove('example');
+        };
       });
     </script>
     <h2>Simple XHR Request</h2>
@@ -162,6 +169,7 @@
     <h3>Actions</h3>
     <button class="btn btn-default" ng-click="send()">Send a request</button>
     <button class="btn btn-default" ng-click="reset()">Reset</button>
+    <button class="btn btn-default" ng-click="remove()">Remove</button>
     <button class="btn btn-default" ng-click="clear()">Clear Local Storage</button>
   </div>
 </body>

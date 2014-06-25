@@ -53,6 +53,15 @@ angular.module('angular-promise-cache', [])
       formatCacheKey = function(ts) {
         return keyDelimiter + ts + keyDelimiter;
       },
+      getStrPromise = function(opts) {
+        return opts.key || opts.promise.toString().replace(whitespaceRegex, '')
+      },
+      isLsEnabled = function(opts) {
+        return !!opts.localStorageEnabled;
+      },
+      getLsKey = function(opts, strPromise) {
+        return opts.localStorageKey || strPromise;
+      },
 
       memoize = typeof _ !== 'undefined' && hasOwnProperty.call(_, 'memoize') ? _.memoize :
         function memoize(func, resolver) {
@@ -69,8 +78,7 @@ angular.module('angular-promise-cache', [])
           return memoized;
         };
 
-
-    return function(opts) {
+    var promiseCacheFunction = function(opts) {
       // TODO: BETTER ERROR HANDLING
       var promise = opts.promise,
         ttl = parseInt(opts.ttl) || DEFAULT_TTL_IN_MS,
@@ -80,11 +88,11 @@ angular.module('angular-promise-cache', [])
         expireOnFailure = opts.expireOnFailure,
         args = opts.args,
         now = new Date().getTime(),
-        strPromise = opts.key || promise.toString().replace(whitespaceRegex, ''),
+        strPromise = getStrPromise(opts),
 
         // v0.0.5: Local storage support
-        lsEnabled = !!opts.localStorageEnabled,
-        lsKey = opts.localStorageKey || strPromise,
+        lsEnabled = isLsEnabled(opts),
+        lsKey = getLsKey(opts, strPromise),
         lsObj = fetch(lsKey),
         lsTs,
         lsMemoCache,
@@ -130,9 +138,11 @@ angular.module('angular-promise-cache', [])
         memos[strPromise] = memoize(promise, function() {
           return formatCacheKey(dateReferences[strPromise]);
         });
+        memos[strPromise].opts = opts;
         $rootScope.$broadcast('angular-promise-cache.new', formatCacheKey(dateReferences[strPromise]), strPromise);
       }
       else {
+        memos[strPromise].opts = opts;
         memos[strPromise].cache = (function() {
           var updatedCache = {},
             cache = memos[strPromise].cache,
@@ -183,5 +193,19 @@ angular.module('angular-promise-cache', [])
           return $q.reject(error);
         }
       );
+    };
+
+    // v0.0.7
+    promiseCacheFunction.remove = function(key) {
+      if (!memos[key]) return;
+      var opts = memos[key].opts;
+      dateReferences[key] = new Date().getTime();
+      if (isLsEnabled(opts)) {
+        remove(getLsKey(opts, key));
+      }
+      delete memos[key];
+      $rootScope.$broadcast('angular-promise-cache.removed', key);
     }
+
+    return promiseCacheFunction;
   }]);
