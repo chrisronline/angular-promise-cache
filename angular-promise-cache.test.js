@@ -335,4 +335,30 @@ describe('angular-promise-cache', function() {
       scope.$apply();
     });
   });
+
+  it('should never expire if ttl === -1', function() {
+    var calls = 0;
+    function getPromise() {
+      var deferred = q.defer();
+      deferred.resolve(++calls);
+      return deferred.promise;
+    }
+
+    var one = { promise: getPromise, ttl: -1 };
+
+    runs(function() {
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      scope.$apply();
+    });
+    waits(4000);
+    runs(function() {
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      scope.$apply();
+    });
+    waits(4000);
+    runs(function() {
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      scope.$apply();
+    });
+  });
 });
