@@ -361,4 +361,23 @@ describe('angular-promise-cache', function() {
       scope.$apply();
     });
   });
+
+  // v0.0.7
+  it('should support remove', function() {
+    var calls = 0;
+    function getPromise() {
+      var deferred = q.defer();
+      deferred.resolve(++calls);
+      return deferred.promise;
+    }
+
+    var one = { key: 'test', promise: getPromise };
+
+
+    apc(one).then(function(idx) { expect(idx).toBe(1); });
+    scope.$apply();
+    apc.remove('test');
+    scope.$apply();
+    apc(one).then(function(idx) { expect(idx).toBe(2); });
+  });
 });

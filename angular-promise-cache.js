@@ -153,7 +153,8 @@ angular.module('angular-promise-cache', [])
 
           for (key in cache) {
             timestamp = getTimestamp(key, strPromise);
-            omit      = bustCache || forceExpiration || timestamp + ttl < now;
+            // v0.0.7: TTL < 0 means it never expires
+            omit      = bustCache || forceExpiration || (ttl > 0 && timestamp + ttl < now);
 
             if (omit) {
               $rootScope.$broadcast('angular-promise-cache.expired', key, strPromise);
