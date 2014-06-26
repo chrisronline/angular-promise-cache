@@ -5,7 +5,10 @@ AngularJS service that provides a generic way to cache promises and ensure all c
 
 Latest Update
 ------
+v0.0.7 added a remove method and support for a TTL that never expires (-1)
+
 v0.0.6 includes a major fix
+
 v0.0.5 is now available and comes packaged with support for local storage!
 
 Huh?
@@ -95,8 +98,8 @@ npm:
     npm install angular-promise-cache --save
 
 Manual:
-* [Development Build - 2.35KB gzipped (6.61KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
-* [Minified/Production Build - 857 bytes gzipped (1.68KB uncompressed)](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
+* [Development Build](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.js)
+* [Minified/Production Build](https://raw.github.com/chrisronline/angular-promise-cache/master/angular-promise-cache.min.js)
 
 Usage
 ---------
@@ -130,6 +133,7 @@ promiseCache(opts)
       promise: function,
 
       // The amount of milliseconds we will cache the promise response. Default is 5000
+      // [v0.0.7] Providing a value of -1 will ensure the promise is never expired
       ttl: int,
 
       // A manual lever to expire the cache. Default is false
@@ -138,6 +142,9 @@ promiseCache(opts)
       // Identifier for the cached promise. Default is promise.toString()
       // This is useful if you are creating different promises that need to share the same cache
       key: string,
+      
+      // List of arguments to pass into the promise function
+      args: array
 
       // [v0.0.3]
       // This function is called on promise failure and returning true will forcefully expire
@@ -150,9 +157,18 @@ promiseCache(opts)
       // Determines the key that will be used to store within local storage
       // If omitted, will default to the 'key' identifier used above
       localStorageKey: string
-
     }
 
+Manual Remove
+--------
+Added in v0.0.7, the remove method will manually expire a promise cached and delete it from local storage (if local storage is enabled). Please see the tests for more information on usage.
+
+```js
+// @strPromise is the unique key of the cached promise
+// @keepInLS boolean indicating if the cached promise should remain in local storage (if enabled)
+promiseCache.remove(strPromise, keepInLS);
+
+```
 Events
 --------
 Added in v0.0.5, the following events are now supported:
@@ -174,6 +190,13 @@ $scope.$on('angular-promise-cache.active', function(evt, key, expireTimestamp, s
     // @strPromise unique identifier for the promise
     // Fired when a cached promise is returned
 });
+
+[v0.0.7]
+$scope.$on('angular-promise-cache.removed', function(evt, strPromise) {
+    // @strPromise unique identifier for the promise
+    // Fired when a cached promise is manually removed
+});
+
 ```
 For actual examples, please view the source of the example application.
 
@@ -194,6 +217,7 @@ To run:
 
 Release Notes
 ---------
+- v0.0.7 - Adding support for a remove method and ttl=-1
 - v0.0.6 - Fixing issue #2
 - v0.0.5 - Added local storage support
 - v0.0.4 - (skipped)
