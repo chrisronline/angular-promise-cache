@@ -371,7 +371,7 @@ describe('angular-promise-cache', function() {
       return deferred.promise;
     }
 
-    var one = { key: 'test', promise: getPromise };
+    var one = { key: 'test', promise: getPromise, localStorageEnabled: true };
 
 
     apc(one).then(function(idx) { expect(idx).toBe(1); });
@@ -379,5 +379,10 @@ describe('angular-promise-cache', function() {
     apc.remove('test');
     scope.$apply();
     apc(one).then(function(idx) { expect(idx).toBe(2); });
+    expect(window.localStorage.getItem(one.key)).toBeNull();
+    scope.$apply();
+    apc.remove('test', true);
+    apc(one).then(function(idx) { expect(idx).toBe(3); });
+    expect(window.localStorage.getItem(one.key)).not.toBeNull();
   });
 });

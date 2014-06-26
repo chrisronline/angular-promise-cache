@@ -197,11 +197,11 @@ angular.module('angular-promise-cache', [])
     };
 
     // v0.0.7
-    promiseCacheFunction.remove = function(key) {
+    promiseCacheFunction.remove = function(key, keepInLS) {
       if (!memos[key]) return;
       var opts = memos[key].opts;
       dateReferences[key] = new Date().getTime();
-      if (isLsEnabled(opts)) {
+      if (!keepInLS && isLsEnabled(opts)) {
         remove(getLsKey(opts, key));
       }
       delete memos[key];
