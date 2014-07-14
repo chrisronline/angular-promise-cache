@@ -119,7 +119,7 @@ describe('angular-promise-cache', function() {
           return deferred.promise;
         },
         ttl: 1000,
-        expireOnFailure: function(request) {
+        expireOnFailure: function() {
           return true;
         }
       },
@@ -133,10 +133,12 @@ describe('angular-promise-cache', function() {
       };
 
     runs(function() {
+      spyOn(obj, 'expireOnFailure').andCallThrough();
       spyOn(fns, 'one').andCallThrough();
       apc(obj).then(angular.noop, fns.one);
       scope.$apply();
       expect(fns.one).toHaveBeenCalled();
+      expect(obj.expireOnFailure).toHaveBeenCalled();
     });
 
     waits(500);
@@ -146,6 +148,37 @@ describe('angular-promise-cache', function() {
       apc(obj).then(fns.two);
       scope.$apply();
       expect(fns.two).toHaveBeenCalled();
+    });
+  });
+
+  it('should support expireOnFailure returning false', function() {
+    var calls = 0;
+    var obj = {
+      key: 'expireOnFailure',
+      promise: function() {
+        var deferred = q.defer();
+        deferred.reject(++calls);
+        return deferred.promise;
+      },
+      ttl: 1000,
+      expireOnFailure: function() { return false; }
+    };
+    var fns =  {
+      one: function(idx) { expect(idx).toBe(1); }
+    };
+
+    runs(function() {
+      apc(obj);
+      scope.$apply();
+    });
+
+    waits(500);
+
+    runs(function() {
+      spyOn(fns, 'one').andCallThrough();
+      apc(obj).then(angular.noop, fns.one);
+      scope.$apply();
+      expect(fns.one).toHaveBeenCalled();
     });
   });
 

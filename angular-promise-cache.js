@@ -188,7 +188,7 @@ angular.module('angular-promise-cache', [])
           return response;
         },
         function(error) {
-          if (angular.isFunction(expireOnFailure)) {
+          if (angular.isFunction(expireOnFailure) && expireOnFailure.apply(this, arguments)) {
             memos[strPromise].forceExpiration = true;
           }
           return $q.reject(error);
