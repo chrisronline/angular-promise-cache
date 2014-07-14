@@ -5,11 +5,9 @@ AngularJS service that provides a generic way to cache promises and ensure all c
 
 Latest Update
 ------
-v0.0.7 added a remove method and support for a TTL that never expires (-1)
+v0.0.7 - Remove method and support for a TTL that never expires (-1)
 
-v0.0.6 includes a major fix
-
-v0.0.5 is now available and comes packaged with support for local storage!
+v0.0.5 - Local Storage support
 
 Huh?
 ------
@@ -142,7 +140,7 @@ promiseCache(opts)
       // Identifier for the cached promise. Default is promise.toString()
       // This is useful if you are creating different promises that need to share the same cache
       key: string,
-      
+
       // List of arguments to pass into the promise function
       args: array
 
@@ -217,6 +215,7 @@ To run:
 
 Release Notes
 ---------
+- v0.0.8 - Fixing issue #4
 - v0.0.7 - Adding support for a remove method and ttl=-1
 - v0.0.6 - Fixing issue #2
 - v0.0.5 - Added local storage support
