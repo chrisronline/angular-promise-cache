@@ -1,6 +1,6 @@
 {
   "name": "angular-promise-cache",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "angular-promise-cache.js",
   "devDependencies": {
     "angular": "~1.2.16",
