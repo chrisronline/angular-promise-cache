@@ -134,6 +134,9 @@
         $scope.remove = function() {
           promiseCache.remove('example');
         };
+        $scope.removeAll = function() {
+          promiseCache.removeAll();
+        };
       });
     </script>
     <h2>Simple XHR Request</h2>
@@ -170,6 +173,7 @@
     <button class="btn btn-default" ng-click="send()">Send a request</button>
     <button class="btn btn-default" ng-click="reset()">Reset</button>
     <button class="btn btn-default" ng-click="remove()">Remove</button>
+    <button class="btn btn-default" ng-click="removeAll()">Remove Everything</button>
     <button class="btn btn-default" ng-click="clear()">Clear Local Storage</button>
   </div>
 </body>

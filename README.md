@@ -3,12 +3,6 @@ angular-promise-cache
 
 AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly.
 
-Latest Update
-------
-v0.0.7 - Remove method and support for a TTL that never expires (-1)
-
-v0.0.5 - Local Storage support
-
 Huh?
 ------
 Our goal is to allow this kind of code...
@@ -167,6 +161,15 @@ Added in v0.0.7, the remove method will manually expire a promise cached and del
 promiseCache.remove(strPromise, keepInLS);
 
 ```
+
+Added in v0.0.10, removeAll iterates over all cached promises and calls .remove()
+
+```js
+// @keepInLS boolean indicating if the cached promise should remain in local storage (if enabled)
+promiseCache.removeAll(keepInLS);
+
+```
+
 Events
 --------
 Added in v0.0.5, the following events are now supported:
@@ -204,17 +207,13 @@ Please view the detailed [demo](http://www.chrisronline.com/angular-promise-cach
 
 Testing
 ---------
-Requires:
-* Karma
-* PhantomJS
 
-To run:
-
-    karma start
-    karma run
+    gulp test
 
 Release Notes
 ---------
+- v0.0.10 - Fixing issue #6
+- v0.0.9 - Fixing issue #5
 - v0.0.8 - Fixing issue #4
 - v0.0.7 - Adding support for a remove method and ttl=-1
 - v0.0.6 - Fixing issue #2

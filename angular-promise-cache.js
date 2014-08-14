@@ -1,4 +1,5 @@
 /**
+@license
 The MIT License (MIT)
 
 Copyright (c) 2013 Chris Roberson
@@ -209,7 +210,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         }
         delete memos[key];
         $rootScope.$broadcast('angular-promise-cache.removed', key);
-      }
+      };
+
+      promiseCacheFunction.removeAll = function(keepInLS) {
+        Object.keys(memos).forEach(function(key) {
+          promiseCacheFunction.remove(key, keepInLS);
+        });
+      };
 
       return promiseCacheFunction;
     }]);
