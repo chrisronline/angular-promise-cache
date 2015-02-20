@@ -67,8 +67,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           return opts.localStorageKey || strPromise;
         },
 
-        memoize = typeof _ !== 'undefined' && hasOwnProperty.call(_, 'memoize') ? _.memoize :
-          function memoize(func, resolver) {
+        memoize = function memoize(func, resolver) {
             var keyPrefix = +new Date + '',
               memoized = function() {
                 var cache = memoized.cache,

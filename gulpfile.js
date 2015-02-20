@@ -20,4 +20,11 @@ gulp.task('test', function() {
     .pipe(karma({configFile:'karma.conf.js',action:'run'}));
 });
 
+gulp.task('version', function() {
+  var bump = require('gulp-bump');
+  gulp.src(['./bower.json', './package.json'])
+    .pipe(bump())
+    .pipe(gulp.dest('./'));
+});
+
 gulp.task('default', ['test', 'build']);
