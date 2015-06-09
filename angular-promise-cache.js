@@ -33,7 +33,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         keyDelimiter = '$',
         whitespaceRegex = /\s+/g,
         dateReferences = {},
-        ls = window.localStorage,
+        ls = window.localStorage || {
+          setItem: function() { },
+          removeItem: function() { },
+          getItem: function() { }
+        },
+        hasOwnProperty = Object.prototype.hasOwnProperty,
         store = function(key, complexValue) {
           ls.setItem(key, JSON.stringify(complexValue));
         },
@@ -181,7 +186,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           }());
         }
 
-        return memos[strPromise].apply(this, args).then(
+        return memos[strPromise].apply(this, args || []).then(
           function(response) {
             if (lsEnabled) {
               lsObj.response = arguments[0];

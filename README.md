@@ -212,6 +212,7 @@ Testing
 
 Release Notes
 ---------
+- v0.0.12 - Fixing issue #9
 - v0.0.11 - Fixing issue #8
 - v0.0.10 - Fixing issue #6
 - v0.0.9 - Fixing issue #5
