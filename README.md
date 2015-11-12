@@ -162,6 +162,8 @@ promiseCache.remove(strPromise, keepInLS);
 
 ```
 
+Added in v0.0.13, the remove method supports both an array of keys or a regular expression
+
 Added in v0.0.10, removeAll iterates over all cached promises and calls .remove()
 
 ```js
@@ -212,6 +214,7 @@ Testing
 
 Release Notes
 ---------
+- v0.0.13 - Fixing issue #11
 - v0.0.12 - Fixing issue #9
 - v0.0.11 - Fixing issue #8
 - v0.0.10 - Fixing issue #6

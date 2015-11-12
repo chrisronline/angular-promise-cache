@@ -39,6 +39,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           getItem: function() { }
         },
         hasOwnProperty = Object.prototype.hasOwnProperty,
+        toString = Object.prototype.toString,
         store = function(key, complexValue) {
           ls.setItem(key, JSON.stringify(complexValue));
         },
@@ -206,20 +207,41 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
       // v0.0.7
       promiseCacheFunction.remove = function(key, keepInLS) {
-        if (!memos[key]) return;
-        var opts = memos[key].opts;
-        dateReferences[key] = new Date().getTime();
-        if (!keepInLS && isLsEnabled(opts)) {
-          remove(getLsKey(opts, key));
+        // v0.0.13
+        var keys = [];
+        if (typeof key === 'object') {
+          var toStr = toString.call(key);
+          switch (toString.call(key)) {
+            case '[object RegExp]':
+              keys = Object.keys(memos).filter(function(_key) {
+                return key.test(_key);
+              });
+              break;
+            case '[object Array]':
+              keys = key.slice(0);
+              break;
+            default:
+              throw 'Unsupported parameter to .remove(). Acceptable paramters are: string, array, regexp';
+          }
         }
-        delete memos[key];
-        $rootScope.$broadcast('angular-promise-cache.removed', key);
+        else {
+          keys.push(key);
+        }
+
+        keys.forEach(function(key) {
+          if (!memos[key]) return;
+          var opts = memos[key].opts;
+          dateReferences[key] = new Date().getTime();
+          if (!keepInLS && isLsEnabled(opts)) {
+            remove(getLsKey(opts, key));
+          }
+          delete memos[key];
+          $rootScope.$broadcast('angular-promise-cache.removed', key);
+        });
       };
 
       promiseCacheFunction.removeAll = function(keepInLS) {
-        Object.keys(memos).forEach(function(key) {
-          promiseCacheFunction.remove(key, keepInLS);
-        });
+        promiseCacheFunction.remove(Object.keys(memos), keepInLS);
       };
 
       return promiseCacheFunction;

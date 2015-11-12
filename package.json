@@ -1,6 +1,6 @@
 {
   "name": "angular-promise-cache",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly.",
   "main": "angular-promise-cache.js",
   "directories": {
@@ -24,12 +24,14 @@
     "url": "https://github.com/chrisronline/angular-promise-cache/issues"
   },
   "devDependencies": {
-    "gulp": "~3.8.7",
-    "gulp-bump": "^0.1.13",
-    "gulp-karma": "0.0.4",
-    "gulp-rename": "~1.2.0",
-    "gulp-uglify": "~0.3.1",
-    "karma-jasmine": "~0.1.5",
-    "karma-phantomjs-launcher": "~0.1.4"
+    "gulp": "^3.9.0",
+    "gulp-bump": "^1.0.0",
+    "gulp-karma": "0.0.5",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.4.2",
+    "karma": "^0.13.15",
+    "karma-jasmine": "~0.1.0",
+    "karma-phantomjs-launcher": "^0.2.1",
+    "phantomjs": "^1.9.18"
   }
 }

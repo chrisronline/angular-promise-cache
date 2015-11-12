@@ -395,30 +395,6 @@ describe('angular-promise-cache', function() {
     });
   });
 
-  // v0.0.7
-  it('should support remove', function() {
-    var calls = 0;
-    function getPromise() {
-      var deferred = q.defer();
-      deferred.resolve(++calls);
-      return deferred.promise;
-    }
-
-    var one = { key: 'test', promise: getPromise, localStorageEnabled: true };
-
-
-    apc(one).then(function(idx) { expect(idx).toBe(1); });
-    scope.$apply();
-    apc.remove('test');
-    scope.$apply();
-    apc(one).then(function(idx) { expect(idx).toBe(2); });
-    expect(window.localStorage.getItem(one.key)).toBeNull();
-    scope.$apply();
-    apc.remove('test', true);
-    apc(one).then(function(idx) { expect(idx).toBe(3); });
-    expect(window.localStorage.getItem(one.key)).not.toBeNull();
-  });
-
   // v0.0.10
   it('should support removeAll', function() {
     var calls = 0;
@@ -440,5 +416,111 @@ describe('angular-promise-cache', function() {
     apc(one).then(function(idx) { expect(idx).toBe(3); });
     apc(two).then(function(idx) { expect(idx).toBe(4); });
     scope.$apply();
+  });
+
+  // v0.0.13
+  describe('remove()', function() {
+    it('should support a string', function() {
+      var calls = 0;
+      function getPromise() {
+        var deferred = q.defer();
+        deferred.resolve(++calls);
+        return deferred.promise;
+      }
+
+      var one = { key: 'test', promise: getPromise, localStorageEnabled: true };
+
+
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      scope.$apply();
+      apc.remove('test');
+      scope.$apply();
+      apc(one).then(function(idx) { expect(idx).toBe(2); });
+      expect(window.localStorage.getItem(one.key)).toBeNull();
+      scope.$apply();
+      apc.remove('test', true);
+      apc(one).then(function(idx) { expect(idx).toBe(3); });
+      expect(window.localStorage.getItem(one.key)).not.toBeNull();
+
+      // Clear for the next tests
+      apc.remove('test');
+    });
+
+    it('should support an array', function() {
+      var calls = 0;
+      function getPromise() {
+        var deferred = q.defer();
+        deferred.resolve(++calls);
+        return deferred.promise;
+      }
+
+      var one = { key: 'test', promise: getPromise, localStorageEnabled: true };
+      var two = { key: 'test2', promise: getPromise, localStorageEnabled: true };
+
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      apc(two).then(function(idx) { expect(idx).toBe(2); });
+      scope.$apply();
+      apc.remove(['test', 'test2']);
+      scope.$apply();
+
+      apc(one).then(function(idx) { expect(idx).toBe(3); });
+      apc(two).then(function(idx) { expect(idx).toBe(4); });
+      expect(window.localStorage.getItem(one.key)).toBeNull();
+      scope.$apply();
+
+      apc.remove(['test', 'test2'], true);
+      apc(one).then(function(idx) { expect(idx).toBe(5); });
+      apc(two).then(function(idx) { expect(idx).toBe(6); });
+
+      expect(window.localStorage.getItem(one.key)).not.toBeNull();
+
+      // Clear for the next tests
+      apc.remove(['test', 'test2']);
+    });
+
+    it('should support a regular expression', function() {
+      var calls = 0;
+      function getPromise() {
+        var deferred = q.defer();
+        deferred.resolve(++calls);
+        return deferred.promise;
+      }
+
+      var one = { key: 'test5', promise: getPromise, localStorageEnabled: true };
+
+      apc(one).then(function(idx) { expect(idx).toBe(1); });
+      scope.$apply();
+      apc.remove(/test([0-9]{1})/);
+      scope.$apply();
+
+      apc(one).then(function(idx) { expect(idx).toBe(2); });
+      expect(window.localStorage.getItem(one.key)).toBeNull();
+      scope.$apply();
+
+      apc.remove(/test([0-9]{1})/, true);
+      apc(one).then(function(idx) { expect(idx).toBe(3); });
+
+      expect(window.localStorage.getItem(one.key)).not.toBeNull();
+
+      // Clear for the next tests
+      apc.remove(/test([0-9]{1})/);
+    });
+
+    it('should support throw an error for supported parameter types', function() {
+      function getPromise() {
+        var deferred = q.defer();
+        deferred.resolve();
+        return deferred.promise;
+      }
+      function remove() {
+        apc.remove({ foo: 'bar' });
+      }
+
+      var one = { key: 'test', promise: getPromise, localStorageEnabled: true };
+
+      apc(one);
+      scope.$apply();
+      expect(remove).toThrow();
+    });
   });
 });
