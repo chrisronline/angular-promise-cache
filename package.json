@@ -2,7 +2,7 @@
   "name": "angular-promise-cache",
   "version": "0.0.13",
   "description": "AngularJS service that provides a generic way to cache promises and ensure all cached promises are resolved correctly.",
-  "main": "angular-promise-cache.js",
+  "main": "index.js",
   "directories": {
     "example": "example"
   },
