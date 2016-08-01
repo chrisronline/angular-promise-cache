@@ -21,9 +21,15 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-(function(window, angular, undefined) {
-
+(function (root, factory) {
+  if(typeof define === 'function' && define.amd) {
+    define([root, 'angular'], factory);
+  } else if(typeof module === 'object' && module.exports) {
+    module.exports = factory(root, require('angular'));
+  } else {
+    root['angular-promise-cache'] = factory(root, root['angular']);
+  }
+}(typeof window !== "undefined" ? window : this, function(window, angular) {
   'use strict';
 
   angular.module('angular-promise-cache', [])
@@ -33,13 +39,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         keyDelimiter = '$',
         whitespaceRegex = /\s+/g,
         dateReferences = {},
-        ls = window.localStorage || {
-          setItem: function() { },
-          removeItem: function() { },
-          getItem: function() { }
-        },
         hasOwnProperty = Object.prototype.hasOwnProperty,
         toString = Object.prototype.toString,
+        lsInaccessible = false,
         store = function(key, complexValue) {
           ls.setItem(key, JSON.stringify(complexValue));
         },
@@ -52,7 +54,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             str = JSON.parse(str);
           }
           catch (e) {
-            console.warn('Unable to parse json response from local storage', str);
+            !lsInaccessible && console.warn('Unable to parse json response from local storage', str);
           }
           return str;
         },
@@ -86,6 +88,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             memoized.cache = {};
             return memoized;
           };
+
+      // This can be null/undefined or throw access exceptions
+      var ls = null;
+      try {
+        ls = window.localStorage;
+      } catch (e) {
+        // Do nothing - probably access denied
+        lsInaccessible = true;
+      }
+      ls = ls || {
+        setItem: function() { },
+        removeItem: function() { },
+        getItem: function() { }
+      };
 
       var promiseCacheFunction = function(opts) {
         // TODO: BETTER ERROR HANDLING
@@ -247,4 +263,4 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       return promiseCacheFunction;
     }]);
 
-})(window, window.angular);
+}));

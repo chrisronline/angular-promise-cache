@@ -214,6 +214,7 @@ Testing
 
 Release Notes
 ---------
+- v0.1.0 - Adding modularity support (for AMD, CommonJS) and fixing issue with local storage access issues, #14
 - v0.0.13 - Fixing issue #11
 - v0.0.12 - Fixing issue #9
 - v0.0.11 - Fixing issue #8
