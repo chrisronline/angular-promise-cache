@@ -23,13 +23,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 (function (root, factory) {
   if(typeof define === 'function' && define.amd) {
-    define([root, 'angular'], factory);
+    define(['angular'], factory);
   } else if(typeof module === 'object' && module.exports) {
-    module.exports = factory(root, require('angular'));
+    module.exports = factory(require('angular'));
   } else {
-    root['angular-promise-cache'] = factory(root, root['angular']);
+    root['angular-promise-cache'] = factory(root['angular']);
   }
-}(typeof window !== "undefined" ? window : this, function(window, angular) {
+}(this, function(angular) {
   'use strict';
 
   angular.module('angular-promise-cache', [])
@@ -263,4 +263,5 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       return promiseCacheFunction;
     }]);
 
+    return 'angular-promise-cache';
 }));
