@@ -214,7 +214,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           },
           function(error) {
             if (angular.isFunction(expireOnFailure) && expireOnFailure.apply(this, arguments)) {
-              memos[strPromise].forceExpiration = true;
+              var memo = memos[strPromise];
+              if (memo) {
+                memo.forceExpiration = true;
+              }
             }
             return $q.reject(error);
           }
