@@ -210,6 +210,8 @@ Please view the detailed [demo](http://www.chrisronline.com/angular-promise-cach
 Testing
 ---------
 
+    npm install
+    bower install
     gulp test
 
 Release Notes
