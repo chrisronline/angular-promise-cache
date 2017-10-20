@@ -182,6 +182,36 @@ describe('angular-promise-cache', function() {
     });
   });
 
+  it('should tolerate expireOnFailure being executed asynchronously after deletion of a short-lived promise cache', function() {
+    var calls = 0;
+    var obj = {
+      key: 'shortLivedPromise',
+      promise: function(apc) {
+        var deferred = q.defer();
+        deferred.reject(++calls);
+        return deferred.promise;
+      },
+      ttl: 1000,
+      expireOnFailure: function() { return true; }
+    };
+    var fns = {
+      one: function(idx) { expect(idx).toBe(2); }
+    };
+
+    runs(function() {
+      apc(obj);
+      apc.remove('shortLivedPromise');
+      scope.$apply();
+    });
+
+    runs(function() {
+      spyOn(fns, 'one').andCallThrough();
+      apc(obj).then(angular.noop, fns.one);
+      scope.$apply();
+      expect(fns.one).toHaveBeenCalled();
+    });
+  });
+
   it('should fire events', function() {
     function getPromise() {
       var deferred = q.defer();
